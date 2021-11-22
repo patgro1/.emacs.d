@@ -1,1 +1,20 @@
 Config for emacs
+
+* Install emacs 28
+** Prerequisites
+#+BEGIN_SRC bash
+sudo apt install -y libmagick++-dev libmagickcore-dev imagemagick libwebkit2gtk-4.0-dev
+sudo apt install -y libxpm-dev libgif-dev libjpeg-dev libpng-dev libtiff-dev libx11-dev libncurses5-dev automake autoconf texinfo libgtk2.0-dev libgnutls28-dev
+sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
+sudo apt install -y gcc-10 g++-10 libgccjit0 libgccjit-10-dev libjansson4 libjansson-dev
+#+END_SRC
+#+BEGIN_SRC bash
+git clone git://git.savannah.gnu.org/emacs.git -b emacs-28
+cd emacs
+export CC=/usr/bin/gcc-10 CXX=/usr/bin/gcc-10
+./autogen.sh
+./configure --disable-silent-rules --with-modules --with-x=yes --with-x-toolkit=gtk3 --with-xwidgets \
+--with-imagemagick --with-mailutils --with-cairo --with-lcms2 --with-native-compilation --with-json \
+prefix=/usr/local
+make -j$(nproc)
+#+END_SRC:
