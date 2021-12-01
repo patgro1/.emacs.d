@@ -1,20 +1,86 @@
-Config for emacs
+#+TITLE: Emacs configuration
+#+PROPERTY: header-args :tangle init.el
 
-* Install emacs 28
-** Prerequisites
-#+BEGIN_SRC bash
-sudo apt install -y libmagick++-dev libmagickcore-dev imagemagick libwebkit2gtk-4.0-dev
-sudo apt install -y libxpm-dev libgif-dev libjpeg-dev libpng-dev libtiff-dev libx11-dev libncurses5-dev automake autoconf texinfo libgtk2.0-dev libgnutls28-dev
-sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
-sudo apt install -y gcc-10 g++-10 libgccjit0 libgccjit-10-dev libjansson4 libjansson-dev
+* Basic configuration
+#+begin_src emacs-lisp
+  (setq inhibit-startup-message t)
+  (menu-bar-mode -1)
+  (toggle-scroll-bar -1)
+  (tool-bar-mode -1)
+  (tooltip-mode -1)
+  (set-fringe-mode 10)
+  ;; the t parameter apends to the hook, instead of prepending
+  ;; this means it'd be run after other hooks that might fiddle
+  ;; with the frame size
+  (add-hook 'window-setup-hook 'toggle-frame-maximized t)
+
+
+#+end_src
+
+** Packages
+*** Setup use-package
+#+BEGIN_SRC emacs-lisp
+  (require 'package)
+  (add-to-list 'package-archives '("gnu"   . "https://elpa.gnu.org/packages/"))
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+  (package-initialize)
+
+  (unless (package-installed-p 'use-package)
+    (package-refresh-contents)
+    (package-install 'use-package))
+  (eval-and-compile
+    (setq use-package-always-ensure t
+	  use-package-expand-minimally t))
+  (require 'use-package)
 #+END_SRC
-#+BEGIN_SRC bash
-git clone git://git.savannah.gnu.org/emacs.git -b emacs-28
-cd emacs
-export CC=/usr/bin/gcc-10 CXX=/usr/bin/gcc-10
-./autogen.sh
-./configure --disable-silent-rules --with-modules --with-x=yes --with-x-toolkit=gtk3 --with-xwidgets \
---with-imagemagick --with-mailutils --with-cairo --with-lcms2 --with-native-compilation --with-json \
-prefix=/usr/local
-make -j$(nproc)
-#+END_SRC:
+*** Babel
+We will be using babel to tangle this file into an init.el file
+#+BEGIN_SRC emacs-lisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (python . t)))
+  (setq org-confirm-babel-evaluate nil)
+#+END_SRC
+* Theme and UI
+** Font
+#+begin_src emacs-lisp
+(set-face-attribute 'default nil :family "FiraCode Nerd Font" :height 150)
+#+end_src
+#+begin_src emacs-lisp
+  (use-package doom-themes
+  :config
+  (load-theme 'doom-material t))
+#+end_src
+#+begin_src emacs-lisp
+  (use-package doom-modeline
+  :init
+  :init (doom-modeline-mode 1))
+#+end_src
+* Evil-mode
+#+begin_src emacs-lisp
+  (use-package evil
+    :init
+    (setq evil-want-integration t)
+    (setq evil-want-keybinding nil)
+    :config
+    (evil-mode 1))
+  (use-package evil-collection
+    :after evil
+    :config
+    (evil-collection-init))
+
+#+end_src
+* Magit
+#+begin_src emacs-lisp
+  (use-package magit)
+#+end_src
+* Org-mode configuration
+** Structured templates
+#+BEGIN_SRC emacs-lisp
+  (with-eval-after-load 'org
+  (require 'org-tempo)
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("py" . "src python")))
+#+END_SRC
