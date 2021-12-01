@@ -1,2 +1,7 @@
 eln-cache
 init.el~
+/#init.el#
+/elpa/
+/transient/
+/auto-save-list/
+init.el
