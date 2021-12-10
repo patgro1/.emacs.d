@@ -5,3 +5,5 @@ init.el~
 /transient/
 /auto-save-list/
 init.el
+*.eld
+/recentf
