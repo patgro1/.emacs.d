@@ -13,8 +13,6 @@
   ;; this means it'd be run after other hooks that might fiddle
   ;; with the frame size
   (add-hook 'window-setup-hook 'toggle-frame-maximized t)
-
-
 #+end_src
 
 ** Packages
@@ -23,6 +21,7 @@
   (require 'package)
   (add-to-list 'package-archives '("gnu"   . "https://elpa.gnu.org/packages/"))
   (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
+  (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
   (package-initialize)
 
   (unless (package-installed-p 'use-package)
@@ -42,6 +41,19 @@ We will be using babel to tangle this file into an init.el file
      (python . t)))
   (setq org-confirm-babel-evaluate nil)
 #+END_SRC
+
+*** IVY, Counsel and Swiper
+#+begin_src emacs-lisp
+  (use-package counsel)
+  (use-package ivy
+    :config
+    (setq ivy-use-virtual-buffers t)
+    (setq ivy-count-format "(%d/%d) ")
+    (ivy-mode 1)
+    (global-set-key (kbd "M-x") 'counsel-M-x))
+  (use-package swiper)
+#+end_src
+
 * Theme and UI
 ** Font
 #+begin_src emacs-lisp
@@ -54,7 +66,6 @@ We will be using babel to tangle this file into an init.el file
 #+end_src
 #+begin_src emacs-lisp
   (use-package doom-modeline
-  :init
   :init (doom-modeline-mode 1))
 #+end_src
 * Evil-mode
@@ -64,17 +75,42 @@ We will be using babel to tangle this file into an init.el file
     (setq evil-want-integration t)
     (setq evil-want-keybinding nil)
     :config
-    (evil-mode 1))
+    (evil-mode 1)
+    (evil-set-leader 'normal (kbd "SPC")))
+
   (use-package evil-collection
     :after evil
     :config
     (evil-collection-init))
-
 #+end_src
+** Global Keybindings with evil
+#+begin_src emacs-lisp
+  (evil-define-key 'normal 'global (kbd "<leader>bb") 'switch-to-buffer)
+#+end_src
+
 * Magit
 #+begin_src emacs-lisp
-  (use-package magit)
+  (use-package magit
+    :commands (magit-status))
+  (evil-define-key 'normal 'global (kbd "<leader>gg") 'magit-status)
 #+end_src
+
+* Projectile
+#+begin_src emacs-lisp
+  (use-package projectile
+    :ensure t
+    :pin melpa-stable
+    :init
+    (projectile-mode +1)
+    :config
+    (setq projectile-indexing-method 'alien)
+    (setq projectile-project-search-path '("~/workspace")))
+    ;(projectile-mode))
+  (evil-define-key 'normal 'global (kbd "<leader><SPC>") 'projectile-find-file)
+  (evil-define-key 'normal 'global (kbd "<leader>pp") 'projectile-switch-project)
+  (evil-define-key 'normal 'global (kbd "<leader>pb") 'projectile-switch-to-buffer)
+#+end_src
+
 * Org-mode configuration
 ** Structured templates
 #+BEGIN_SRC emacs-lisp
@@ -84,3 +120,8 @@ We will be using babel to tangle this file into an init.el file
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("py" . "src python")))
 #+END_SRC
+
+;; Local Variables: 
+;; eval: (add-hook 'after-save-hook (lambda ()(if (y-or-n-p "Reload?")(load-file user-init-file))) nil t) 
+;; eval: (add-hook 'after-save-hook (lambda ()(if (y-or-n-p "Tangle?")(org-babel-tangle))) nil t) 
+;; End:
