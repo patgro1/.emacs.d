@@ -14,6 +14,12 @@
   ;; with the frame size
   (add-hook 'window-setup-hook 'toggle-frame-maximized t)
 #+end_src
+** Backup and lock
+In modern compute, I do not think it's still useful to keep all these backup files and such.
+#+begin_src emacs-lisp
+(setq backup-inhibited t)
+(setq auto-save-default nil)
+#+end_src
 
 ** Packages
 *** Setup use-package
