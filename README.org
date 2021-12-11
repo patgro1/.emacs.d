@@ -54,6 +54,16 @@ We will be using babel to tangle this file into an init.el file
   (use-package swiper)
 #+end_src
 
+*** Whichkey
+I like to have which key running to help with the binding I am not familiar with. I do not set anything particular except the threshold so it not a burden to maintain it.
+#+begin_src emacs-lisp
+  (use-package which-key
+    :ensure t
+    :config
+    (setq which-key-idle-delay 0.3)
+    (which-key-mode))
+#+end_src
+
 * Theme and UI
 ** Font
 #+begin_src emacs-lisp
