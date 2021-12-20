@@ -4,7 +4,6 @@ init.el~
 /elpa/
 /transient/
 /auto-save-list/
-init.el
 *.eld
 /recentf
 /.cask/
