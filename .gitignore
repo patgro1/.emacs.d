@@ -7,3 +7,5 @@ init.el~
 init.el
 *.eld
 /recentf
+/.cask/
+/straight/

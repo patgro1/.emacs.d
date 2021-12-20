@@ -22,21 +22,28 @@ In modern compute, I do not think it's still useful to keep all these backup fil
 #+end_src
 
 ** Packages
-*** Setup use-package
+*** Setup straight
+#+begin_src emacs-lisp
+  ;; Install straight.el
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+	 (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+	(bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+	  (url-retrieve-synchronously
+	   "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+	   'silent 'inhibit-cookies)
+	(goto-char (point-max))
+	(eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+(setq package-enable-at-startup nil)
+#+end_src
+We now force use-package to use straight.el by default
 #+BEGIN_SRC emacs-lisp
-  (require 'package)
-  (add-to-list 'package-archives '("gnu"   . "https://elpa.gnu.org/packages/"))
-  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-  (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/"))
-  (package-initialize)
-
-  (unless (package-installed-p 'use-package)
-    (package-refresh-contents)
-    (package-install 'use-package))
-  (eval-and-compile
-    (setq use-package-always-ensure t
-	  use-package-expand-minimally t))
-  (require 'use-package)
+  (straight-use-package 'use-package)
+  (use-package straight
+         :custom (straight-use-package-by-default t))
 #+END_SRC
 *** Babel
 We will be using babel to tangle this file into an init.el file
