@@ -123,7 +123,6 @@ I like to have which key running to help with the binding I am not familiar with
 #+begin_src emacs-lisp
   (use-package projectile
     :ensure t
-    :pin melpa-stable
     :init
     (projectile-mode +1)
     :config
