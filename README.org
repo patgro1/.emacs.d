@@ -119,6 +119,31 @@ I like to have which key running to help with the binding I am not familiar with
   (evil-define-key 'normal 'global (kbd "<leader>gg") 'magit-status)
 #+end_src
 
+* TRAMP
+This configuration is based on [[https://github.com/mpereira/.emacs.d][this configuration]].
+#+begin_src emacs-lisp
+(use-package tramp)
+#+end_src
+To speed up tramp from the FAQ we could either remove all version control from tramp buffer or just trim handled backend.
+Version control can slow down a lot tramp buffers so we will remove them from the version control list.
+#+begin_src emacs-lisp
+;(setq vc-ignore-dir-regexp
+;      (format "\\(%s\\)\\|\\(%s\\)"
+;              vc-ignore-dir-regexp
+;              tramp-file-name-regexp))
+#+end_src
+#+begin_src emacs-lisp
+(setq vc-handled-backends '(SVN Git))
+#+end_src
+SSH is fast than SCP so lets use that method by default.
+#+begin_src emacs-lisp
+(setq tramp-default-method "ssh")
+#+end_src
+Try to make performance improvements with TRAMP based on [[https://github.com/syl20bnr/spacemacs/issues/11381#issuecomment-481239700][this]] and [[https://github.com/bbatsov/projectile/issues/1232#issuecomment-683449873][this]].
+#+begin_src emacs-lisp
+(defadvice projectile-project-root (around ignore-remote first activate)
+  (unless (file-remote-p default-directory 'no-identification) ad-do-it))
+#+end_src
 * Projectile
 #+begin_src emacs-lisp
   (use-package projectile
