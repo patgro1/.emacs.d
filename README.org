@@ -134,6 +134,14 @@ I like to have which key running to help with the binding I am not familiar with
   (evil-define-key 'normal 'global (kbd "<leader>pb") 'projectile-switch-to-buffer)
 #+end_src
 
+* Languages setup
+** Docker
+#+begin_src emacs-lisp
+  (use-package dockerfile-mode
+  :config
+  (add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode)))
+#+end_src
+
 * Org-mode configuration
 ** UI improvements
 #+begin_src emacs-lisp
