@@ -109,6 +109,7 @@ I like to have which key running to help with the binding I am not familiar with
 ** Global Keybindings with evil
 #+begin_src emacs-lisp
   (evil-define-key 'normal 'global (kbd "<leader>bb") 'switch-to-buffer)
+  (evil-define-key 'normal 'global (kbd "<leader>bk") 'kill-current-buffer)
 #+end_src
 
 * Magit
