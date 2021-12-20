@@ -135,6 +135,14 @@ I like to have which key running to help with the binding I am not familiar with
 #+end_src
 
 * Org-mode configuration
+** UI improvements
+#+begin_src emacs-lisp
+(use-package org-bullets
+  :after org
+  :hook (org-mode . org-bullets-mode)
+  :config
+  (setq org-bullets-bullet-list '("○" "☉" "◎" "◉" "○" "◌" "◎" "●" "◦" "◯")))
+#+end_src
 ** Structured templates
 #+BEGIN_SRC emacs-lisp
   (with-eval-after-load 'org
