@@ -9,6 +9,9 @@
 ;; with the frame size
 (add-hook 'window-setup-hook 'toggle-frame-maximized t)
 
+(setq gc-cons-threshold 100000000)
+(setq read-process-output-max (* 1024 1024)) ;; 1mb
+
 (defun pg/turn-line-number-on ()
   (display-line-numbers-mode t)
   (setq display-line-numbers 'relative))
@@ -58,6 +61,12 @@
   (setq which-key-idle-delay 0.3)
   (which-key-mode))
 
+(use-package flycheck
+  :config
+  (global-flycheck-mode))
+
+(use-package general)
+
 (set-face-attribute 'default nil :family "FiraCode Nerd Font" :height 150)
 
 (use-package doom-themes
@@ -86,21 +95,33 @@
   (setq evil-want-keybinding nil)
   (setq evil-undo-system 'undo-tree)
   :config
-  (evil-mode 1)
-  (evil-set-leader 'normal (kbd "SPC")))
-
+  (evil-mode 1))
+  ;(evil-set-leader 'normal (kbd "SPC")))
 
 (use-package evil-collection
   :after evil
   :config
   (evil-collection-init))
 
-(evil-define-key 'normal 'global (kbd "<leader>bb") 'switch-to-buffer)
-(evil-define-key 'normal 'global (kbd "<leader>bk") 'kill-current-buffer)
+(general-create-definer leader-def
+  ;; :prefix my-leader
+  :states '(normal visual motion insert emacs)
+  :prefix "SPC"
+  :keymaps 'override
+  :non-normal-prefix "M-SPC")
+
+(leader-def
+"b" '(:ignore t :which-key "buffers")
+"bb" 'switch-to-buffer
+"bk" 'kill-current-buffer)
 
 (use-package magit
-  :commands (magit-status))
-(evil-define-key 'normal 'global (kbd "<leader>gg") 'magit-status)
+  :commands (magit-status magit-log)
+  :general
+  (leader-def
+  "g" '(:ignore t :which-key "git")
+  "gg" 'magit-status
+  "gl" 'magit-log))
 
 (use-package tramp)
 
@@ -113,8 +134,9 @@
 
 (setq tramp-default-method "ssh")
 
-(defadvice projectile-project-root (around ignore-remote first activate)
-  (unless (file-remote-p default-directory 'no-identification) ad-do-it))
+; FIXME: when tangling this in, projectile is acting weird with tramp
+;(defadvice projectile-project-root (around ignore-remote first activate)
+;  (unless (file-remote-p default-directory 'no-identification) ad-do-it))
 
 (use-package projectile
   :ensure t
@@ -122,15 +144,96 @@
   (projectile-mode +1)
   :config
   (setq projectile-indexing-method 'alien)
-  (setq projectile-project-search-path '("~/workspace")))
+  (setq projectile-completion-system 'ivy)
+  (setq projectile-project-search-path '("~/workspace"))
   ;(projectile-mode))
-(evil-define-key 'normal 'global (kbd "<leader><SPC>") 'projectile-find-file)
-(evil-define-key 'normal 'global (kbd "<leader>pp") 'projectile-switch-project)
-(evil-define-key 'normal 'global (kbd "<leader>pb") 'projectile-switch-to-buffer)
+  :general
+  (leader-def
+  "p" '(:ignore t :which-key "projectile")
+  "<SPC>" 'projectile-find-file
+  "pf" 'projectile-find-file
+  "pp" 'projectile-switch-project
+  "pb" 'projectile-switch-to-buffer))
 
 (use-package dockerfile-mode
 :config
 (add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode)))
+
+(use-package company-jedi
+	 :config
+	 (add-to-list 'company-backends 'company-jedi)
+	 (setq jedi:complete-on-dot t)
+	 :hook
+	 (inferior-python-mode . jedi:setup)
+	 (python-mode . jedi:setup)
+	 )
+
+       (defun my/python-mode-hook ()
+	 (add-to-list 'company-backends 'company-jedi))
+(use-package virtualenvwrapper)
+(venv-set-location "~/virtualenvs")
+(venv-workon "emacs")
+(setq lsp-python-executable-cmd "python3")
+
+(use-package company
+:config
+(setq company-global-modes '(not comint-mode
+				    eshell-mode
+				    help-mode
+				    message-mode))
+(setq company-tooltip-align-annotations t ; aligns annotation to the right
+		      company-tooltip-limit 24            ; bigger popup window
+		      company-idle-delay .2               ; decrease delay before autocompletion popup shows
+		      company-echo-delay 0                ; remove annoying blinking
+		      company-minimum-prefix-length 2
+		      company-require-match nil
+		      company-dabbrev-ignore-case nil
+		      company-dabbrev-downcase nil)
+(company-tng-configure-default)
+(add-hook 'after-init-hook 'global-company-mode))
+(use-package company-box
+	:after company
+	:diminish
+	:hook (company-mode . company-box-mode)
+	:custom (company-box-icons-alist 'company-box-icons-all-the-icons))
+
+(use-package lsp-mode
+  :hook (
+	 (python-mode . lsp)
+	 (lsp-mode . lsp-enable-which-key-integration))
+  :commands lsp
+  :general
+  (leader-def
+    :keymaps 'lsp-mode-map
+    "l" '(:ignore t :which-key "lsp")
+    "lg" 'lsp-find-definition
+    "lr" 'lsp-ui-peek-find-references
+    "ld" 'lsp-ui-peek-find-definitions))
+(use-package lsp-ui
+  :commands lsp-ui-mode
+  :custom
+  (lsp-ui-sideline-show-diagnostics t)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-peek-enable t)
+  (lsp-ui-flycheck-enable t))
+(use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+
+(defun setup_env ()
+	  (interactive)
+	  (venv-deactivate)
+	  (message projectile-project-root)
+	  (setenv "TOOLS_PATH" (concat (projectile-project-root) "/tools"))
+	  ;; (setq tags-table-list (list (concat (projectile-project-root) "/rtl" )))
+	  (setenv "PYTHONPATH" (concat (projectile-project-root) ":" (getenv "TOOLS_PATH") "/themis_fw:" (concat  (projectile-project-root) "/registers/auto_gen/python")))
+	  (venv-set-location "~/virtualenvs")
+	  (venv-workon)
+	  (lsp-restart-workspace)
+;	  (jedi:stop-server)
+;	  (jedi:setup)
+	  (setq projectile-tags-command (concat (projectile-project-root)"scripts/etags/verilog_etags " (projectile-project-root) "rtl"))
+	  (setq projectile-tags-file-name (concat (projectile-project-root) "rtl/TAGS"))
+	  (setq jedi:complete-on-dot t)
+	  )
 
 (use-package org-bullets
   :after org
