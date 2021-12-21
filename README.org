@@ -14,12 +14,14 @@
   ;; with the frame size
   (add-hook 'window-setup-hook 'toggle-frame-maximized t)
 #+end_src
-We turn on relative line numbers only for prog. We thus are using a hook to enable it in prog mode.
+We turn on relative line numbers only for prog. We thus are using a hook to enable it in prog mode. We also turn on colum mode globally.
+
 #+begin_src emacs-lisp
   (defun pg/turn-line-number-on ()
     (display-line-numbers-mode t)
     (setq display-line-numbers 'relative))
   (add-hook 'prog-mode-hook 'pg/turn-line-number-on)
+  (column-number-mode t)
 #+end_src
 ** Backup and lock
 In modern compute, I do not think it's still useful to keep all these backup files and such.

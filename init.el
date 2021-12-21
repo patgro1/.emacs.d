@@ -13,6 +13,7 @@
   (display-line-numbers-mode t)
   (setq display-line-numbers 'relative))
 (add-hook 'prog-mode-hook 'pg/turn-line-number-on)
+(column-number-mode t)
 
 (setq backup-inhibited t)
 (setq auto-save-default nil)
