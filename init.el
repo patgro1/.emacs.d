@@ -9,13 +9,10 @@
 ;; with the frame size
 (add-hook 'window-setup-hook 'toggle-frame-maximized t)
 
-(setq display-line-numbers 'relative)
-
-(defun pg/turn-off-line-number()
-(message "in hook call")
-  (setq display-line-numbers nil)
-  )
-(add-hook 'org-mode-hook 'pg/turn-off-line-number)
+(defun pg/turn-line-number-on ()
+  (display-line-numbers-mode t)
+  (setq display-line-numbers 'relative))
+(add-hook 'prog-mode-hook 'pg/turn-line-number-on)
 
 (setq backup-inhibited t)
 (setq auto-save-default nil)
