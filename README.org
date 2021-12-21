@@ -150,8 +150,9 @@ SSH is fast than SCP so lets use that method by default.
 #+end_src
 Try to make performance improvements with TRAMP based on [[https://github.com/syl20bnr/spacemacs/issues/11381#issuecomment-481239700][this]] and [[https://github.com/bbatsov/projectile/issues/1232#issuecomment-683449873][this]].
 #+begin_src emacs-lisp
-(defadvice projectile-project-root (around ignore-remote first activate)
-  (unless (file-remote-p default-directory 'no-identification) ad-do-it))
+  ; FIXME: when tangling this in, projectile is acting weird with tramp
+  ;(defadvice projectile-project-root (around ignore-remote first activate)
+  ;  (unless (file-remote-p default-directory 'no-identification) ad-do-it))
 #+end_src
 * Projectile
 #+begin_src emacs-lisp
